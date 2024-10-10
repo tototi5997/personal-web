@@ -1,6 +1,6 @@
-import { AmbientLight, Group, PerspectiveCamera, Scene, SpotLight, WebGLRenderer } from "three";
-// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-// import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { AmbientLight, AnimationMixer, Group, PerspectiveCamera, Scene, SpotLight, WebGLRenderer } from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { Planet } from "./planet";
 
 export class MainScene {
@@ -10,7 +10,8 @@ export class MainScene {
   private camera: PerspectiveCamera;
   private renderer: WebGLRenderer;
   private earthGroup: Group;
-  // private controls: OrbitControls;
+  private controls: OrbitControls;
+  private mixer: AnimationMixer | undefined;
 
   constructor(parentDom: HTMLElement) {
     this.containerWidth = window.innerWidth;
@@ -26,7 +27,7 @@ export class MainScene {
     this.earthGroup = new Group();
 
     this.camera.position.z = 40;
-    this.renderer.setClearColor(0xffffff, 1);
+    this.renderer.setClearColor(0x000000, 1);
     this.renderer.setSize(this.containerWidth, this.containerHeight);
     this.renderer.shadowMap.enabled = true; // 开启阴影
     // this.renderer.autoClear = false; // 每次渲染前不自动清除画布
@@ -41,36 +42,41 @@ export class MainScene {
     earthMesh.receiveShadow = true;
     spotLight.target = earthMesh;
 
-    // const loader = new GLTFLoader();
-    // loader.load(
-    //   "/src/gltf-modals/wolf/Wolf-Blender-2.82a.gltf",
-    //   (gltf) => {
-    //     const model = gltf.scene;
-    //     // model.scale.set(0.01, 0.01, 0.01);
-    //     // model.position.set(0, 0, 0);
-    //     this.scene.add(model);
-    //     spotLight.target = model;
-    //   },
-    //   undefined,
-    //   (err) => {
-    //     console.log(err);
-    //   }
-    // );
+    const loader = new GLTFLoader();
+    loader.load(
+      "/src/gltf-modals/wolf/Wolf-Blender-2.82a.glb",
+      (gltf) => {
+        const model = gltf.scene;
+        model.scale.set(20, 20, 20);
+        model.position.set(0, 0, 0);
+        this.scene.add(model);
+        spotLight.target = model;
+
+        this.mixer = new AnimationMixer(model);
+        gltf.animations.forEach((clip) => {
+          this.mixer?.clipAction(clip).play();
+        });
+      },
+      undefined,
+      (err) => {
+        console.log(err);
+      }
+    );
 
     // 事件
-    // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    // this.controls.enableZoom = false;
-    // this.controls.maxPolarAngle = 1.5;
-    // this.controls.minPolarAngle = 1;
-    // this.controls.enablePan = false;
-    // this.controls.enableDamping = true;
-    // this.controls.dampingFactor = 0.05;
-    // this.controls.rotateSpeed = 0.5;
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableZoom = false;
+    this.controls.maxPolarAngle = 1.5;
+    this.controls.minPolarAngle = 1;
+    this.controls.enablePan = false;
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.05;
+    this.controls.rotateSpeed = 0.5;
 
     this.earthGroup.add(earthMesh);
     this.scene.add(spotLight);
     this.scene.add(light);
-    this.scene.add(this.earthGroup);
+    // this.scene.add(this.earthGroup);
     this.scene.add(earthGlow);
 
     container.appendChild(this.renderer.domElement);
@@ -84,6 +90,8 @@ export class MainScene {
     window.requestAnimationFrame(() => this.render());
     this.earthGroup.rotation.y += 0.005;
     this.renderer.render(this.scene, this.camera);
+
+    this.mixer && this.mixer.update(0.01);
   }
 
   private handleWindowResize() {
