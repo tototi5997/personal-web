@@ -1,0 +1,114 @@
+.wh100p {
+  width: 100%;
+  height: 100%;
+}
+
+.h100p {
+  height: 100%;
+}
+
+.w100p {
+  width: 100%;
+}
+
+.pr {
+  position: relative;
+}
+
+.pa {
+  position: absolute;
+}
+
+.nowarp {
+  white-space: nowrap;
+}
+
+.tac {
+  text-align: center;
+}
+
+.bold {
+  font-weight: 500;
+}
+
+.hide {
+  display: none !important;
+}
+
+.hand {
+  cursor: pointer;
+}
+
+.usn {
+  user-select: none;
+}
+
+.max-con {
+  width: max-content;
+}
+
+.scroll {
+  overflow: auto !important;
+}
+
+.disabled {
+  pointer-events: none;
+}
+
+.trans {
+  transition: all .3s ease-in-out;
+}
+
+.loopStyle(@counter) when (@counter > 0) {
+  .p@{counter} {
+    padding: 1px * @counter;
+  }
+
+  .pt@{counter} {
+    padding-top: 1px * @counter;
+  }
+
+  .pb@{counter} {
+    padding-bottom: 1px * @counter;
+  }
+
+  .pl@{counter} {
+    padding-left: 1px * @counter;
+  }
+
+  .pr@{counter} {
+    padding-right: 1px * @counter;
+  }
+
+  .m@{counter} {
+    margin: 1px * @counter;
+  }
+
+  .mt@{counter} {
+    margin-top: 1px * @counter;
+  }
+
+  .ml@{counter} {
+    margin-left: 1px * @counter;
+  }
+
+  .mr@{counter} {
+    margin-right: 1px * @counter;
+  }
+
+  .mb@{counter} {
+    margin-bottom: 1px * @counter;
+  }
+
+  .fs@{counter} {
+    font-size: 1px * @counter;
+  }
+
+  .gp@{counter} {
+    gap: 1px * @counter;
+  }
+
+  .loopStyle(@counter - 1);
+}
+
+.loopStyle(100);

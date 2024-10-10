@@ -1,0 +1,23 @@
+@import url("./styles/index.less");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  transition: background-color, color, background 0.3s;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  font-size: 14px;
+  color: black;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
