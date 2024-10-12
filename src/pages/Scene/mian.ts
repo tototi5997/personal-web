@@ -1,7 +1,8 @@
-import { AmbientLight, AnimationMixer, PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { AmbientLight, AnimationMixer, Group, PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { Land } from "./land";
+import { DirectionController } from "./direction";
 
 export class MainScene {
   private containerWidth: number;
@@ -11,6 +12,8 @@ export class MainScene {
   private renderer: WebGLRenderer;
   private controls: OrbitControls;
   private mixer: AnimationMixer | undefined;
+  private directionController: DirectionController;
+  private carModel: Group | undefined;
 
   constructor(parentDom: HTMLElement) {
     this.containerWidth = window.innerWidth;
@@ -23,6 +26,7 @@ export class MainScene {
     this.scene = new Scene();
     this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
     this.renderer = new WebGLRenderer({ antialias: true });
+    this.directionController = new DirectionController();
 
     this.camera.position.set(0, 25, 50);
 
@@ -37,14 +41,14 @@ export class MainScene {
 
     const loader = new GLTFLoader();
     loader.load(
-      "/src/gltf-modals/wolf/Wolf-Blender-2.82a.glb",
+      "/src/gltf-modals/xiaomisu7.glb",
       (gltf) => {
-        const model = gltf.scene;
-        model.scale.set(10, 10, 10);
-        model.position.set(0, 0, 0);
-        this.scene.add(model);
+        this.carModel = gltf.scene;
+        this.carModel.scale.set(4, 4, 4);
+        this.carModel.position.set(0, 0, 0);
+        this.scene.add(this.carModel);
 
-        this.mixer = new AnimationMixer(model);
+        this.mixer = new AnimationMixer(this.carModel);
         gltf.animations.forEach((clip) => {
           this.mixer?.clipAction(clip).play();
         });
@@ -76,9 +80,14 @@ export class MainScene {
 
   private render() {
     window.requestAnimationFrame(() => this.render());
-    this.renderer.render(this.scene, this.camera);
 
     this.mixer && this.mixer.update(0.01);
+
+    if (this.carModel) {
+      this.directionController.updateCarMovement(this.carModel);
+    }
+
+    this.renderer.render(this.scene, this.camera);
   }
 
   private handleWindowResize() {
