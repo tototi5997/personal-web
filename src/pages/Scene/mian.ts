@@ -41,7 +41,7 @@ export class MainScene {
 
     const loader = new GLTFLoader();
     loader.load(
-      "/src/gltf-modals/xiaomisu7.glb",
+      "/src/gltf-modals/model.64b31a81.glb",
       (gltf) => {
         this.carModel = gltf.scene;
         this.carModel.scale.set(4, 4, 4);
