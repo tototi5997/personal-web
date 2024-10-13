@@ -1,0 +1,14 @@
+@keyframes blink-caret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: black;
+  }
+}
+
+.text_flow {
+  white-space: pre-wrap;
+  animation: blink-caret 0.5s step-end infinite;
+}

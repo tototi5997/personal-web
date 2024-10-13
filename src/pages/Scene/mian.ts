@@ -1,8 +1,8 @@
-import { AmbientLight, AnimationMixer, Group, PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { AmbientLight, AnimationMixer, Group, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { Land } from "./land";
-import { DirectionController } from "./direction";
+// import { Land } from "./land";
+// import { DirectionController } from "./direction";
 
 export class MainScene {
   private containerWidth: number;
@@ -12,10 +12,10 @@ export class MainScene {
   private renderer: WebGLRenderer;
   private controls: OrbitControls;
   private mixer: AnimationMixer | undefined;
-  private directionController: DirectionController;
-  private carModel: Group | undefined;
+  // private directionController: DirectionController;
+  private planetModel: Group | undefined;
 
-  constructor(parentDom: HTMLElement) {
+  constructor(parentDom: HTMLElement, onModelReady?: () => void) {
     this.containerWidth = window.innerWidth;
     this.containerHeight = window.innerHeight;
 
@@ -26,29 +26,31 @@ export class MainScene {
     this.scene = new Scene();
     this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
     this.renderer = new WebGLRenderer({ antialias: true });
-    this.directionController = new DirectionController();
+    // this.directionController = new DirectionController();
 
-    this.camera.position.set(0, 25, 50);
+    this.camera.position.set(0, 2, 24);
 
     this.renderer.setClearColor(0x000000, 1);
     this.renderer.setSize(this.containerWidth, this.containerHeight);
     this.renderer.shadowMap.enabled = true; // 开启阴影
 
     const light = new AmbientLight(0xffffff, 1);
+    const fireLight = new PointLight(0xffa500, 50, 15);
 
-    const grassLand = new Land();
-    const landMesh = grassLand.getLand();
+    fireLight.position.set(0, -4, 4);
 
     const loader = new GLTFLoader();
     loader.load(
       "/src/gltf-modals/model.64b31a81.glb",
       (gltf) => {
-        this.carModel = gltf.scene;
-        this.carModel.scale.set(4, 4, 4);
-        this.carModel.position.set(0, 0, 0);
-        this.scene.add(this.carModel);
+        this.planetModel = gltf.scene;
+        this.planetModel.scale.set(4, 4, 4);
+        this.planetModel.position.set(0, -4, 0);
+        this.scene.add(this.planetModel);
 
-        this.mixer = new AnimationMixer(this.carModel);
+        onModelReady?.();
+
+        this.mixer = new AnimationMixer(this.planetModel);
         gltf.animations.forEach((clip) => {
           this.mixer?.clipAction(clip).play();
         });
@@ -69,7 +71,8 @@ export class MainScene {
     this.controls.rotateSpeed = 0.5;
 
     this.scene.add(light);
-    this.scene.add(landMesh!);
+    this.scene.add(fireLight);
+    // this.scene.add(landMesh!);
 
     container.appendChild(this.renderer.domElement);
     parentDom.append(container);
@@ -83,9 +86,7 @@ export class MainScene {
 
     this.mixer && this.mixer.update(0.01);
 
-    if (this.carModel) {
-      this.directionController.updateCarMovement(this.carModel);
-    }
+    this.scene.rotation.y -= 0.001;
 
     this.renderer.render(this.scene, this.camera);
   }
