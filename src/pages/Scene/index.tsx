@@ -50,7 +50,7 @@ const Scene = () => {
       <div ref={ref} className={c("pr white-1")}>
         <MusicPlayer className={c(s.music_player, "pa")} ref={playerRef} />
         <div className={c(s.conversation, "pa w-200")}>
-          <TextFlow text="Hello, welcome to my world, this is my planet, please enjoy it." onFinish={onTextFinish} ref={textFlowRef} />
+          {showScene && <TextFlow text={text} onFinish={onTextFinish} />}
           {showQuestions && (
             <div className="fbv mt-40 gap-10">
               {questions.map((que) => (
@@ -58,8 +58,8 @@ const Scene = () => {
                   key={que.key}
                   className={c(s.questions, "text-[12px] hand")}
                   onClick={() => {
+                    setQuestions(false);
                     setText("Test text");
-                    textFlowRef.current?.start();
                   }}
                 >
                   {que.label}
