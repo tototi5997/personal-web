@@ -7,13 +7,14 @@ interface TextFlowProps {
   classname?: string;
   speed?: number;
   onFinish?: () => void;
+  showSkip?: boolean;
 }
 
 export type TextFlowRef = {
   start: () => void;
 };
 
-const TextFlow: React.FC<TextFlowProps> = ({ text, classname, speed = 100, onFinish }) => {
+const TextFlow: React.FC<TextFlowProps> = ({ text, classname, speed = 100, onFinish, showSkip = true }) => {
   const [displayedText, setDisplayedText] = useState("");
 
   const indexRef = useRef(0); // 当前输出下标
@@ -43,6 +44,12 @@ const TextFlow: React.FC<TextFlowProps> = ({ text, classname, speed = 100, onFin
     }
   };
 
+  const handleSkip = () => {
+    setDisplayedText(text);
+    indexRef.current = text.length;
+    onFinish?.();
+  };
+
   useEffect(() => {
     indexRef.current = 0;
     setDisplayedText("");
@@ -52,7 +59,16 @@ const TextFlow: React.FC<TextFlowProps> = ({ text, classname, speed = 100, onFin
     };
   }, [text]);
 
-  return <code className={c(classname, s.text_flow, "white-1")}>{displayedText}</code>;
+  return (
+    <div className={c(classname, "fbv")}>
+      {showSkip && (
+        <div className="mb-10 text-[12px] hand w-max" onClick={handleSkip}>
+          Skip
+        </div>
+      )}
+      <code className={c(s.text_flow, "white-1")}>{displayedText}</code>
+    </div>
+  );
 };
 
 export default TextFlow;

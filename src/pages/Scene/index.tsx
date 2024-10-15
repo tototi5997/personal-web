@@ -2,36 +2,58 @@ import { useEffect, useRef, useState } from "react";
 import { MainScene } from "./mian";
 import MusicPlayer, { MusicPlayerRef } from "@/components/MusicPlayer";
 import TextFlow, { TextFlowRef } from "@/components/TextFlow";
+import { finalQuestions, questions, welcome } from "./config";
+import ClearButton from "@/components/ClearButton";
 import c from "classnames";
 import s from "./index.module.less";
-import { questions } from "./config";
 
 const Scene = () => {
   const ref = useRef(null);
   const playerRef = useRef<MusicPlayerRef>(null);
   const textFlowRef = useRef<TextFlowRef>(null);
+  const instanceRef = useRef<MainScene | null>(null);
 
+  const [clearScreen, setCrearScreen] = useState(false);
   const [isSceneLoading, setSceneLoading] = useState(true);
   const [showScene, setScene] = useState(false);
-  const [showQuestions, setQuestions] = useState(false);
-  const [text, setText] = useState("Hello, welcome to my world, this is my planet, please enjoy it.");
+  const [showQuestions, setShowQuestions] = useState(false);
+  const [currentQuestions, setCurrentQuestions] = useState(questions);
+
+  const [textObj, setTextObj] = useState(welcome);
 
   useEffect(() => {
     if (ref.current) {
-      new MainScene(ref.current, () => {
+      instanceRef.current = new MainScene(ref.current, () => {
         setSceneLoading(false);
       });
     }
   }, [ref]);
 
   const onTextFinish = () => {
-    setQuestions(true);
+    setShowQuestions(true);
   };
 
   const handleEnterScene = () => {
     setScene(true);
     playerRef.current?.play();
     textFlowRef.current?.start();
+  };
+
+  const handleClickQuestionItem = (que: { key: number; label: string; answer: string }) => {
+    setShowQuestions(false);
+    setTextObj(que);
+    switch (que.key) {
+      case 4:
+        setCurrentQuestions(finalQuestions);
+        instanceRef.current?.moveCameraFar();
+        break;
+      case 4001:
+        setCurrentQuestions(questions);
+        instanceRef.current?.moveCameraCloser();
+        break;
+      default:
+        instanceRef.current?.moveCameraCloser();
+    }
   };
 
   return (
@@ -49,25 +71,23 @@ const Scene = () => {
       )}
       <div ref={ref} className={c("pr white-1")}>
         <MusicPlayer className={c(s.music_player, "pa")} ref={playerRef} />
-        <div className={c(s.conversation, "pa w-200")}>
-          {showScene && <TextFlow text={text} onFinish={onTextFinish} />}
-          {showQuestions && (
-            <div className="fbv mt-40 gap-10">
-              {questions.map((que) => (
-                <div
-                  key={que.key}
-                  className={c(s.questions, "text-[12px] hand")}
-                  onClick={() => {
-                    setQuestions(false);
-                    setText("Test text");
-                  }}
-                >
-                  {que.label}
+        <ClearButton className={c(s.clear_button, "pa")} state={clearScreen} onClick={() => setCrearScreen(!clearScreen)} />
+        {!clearScreen && (
+          <>
+            <div className={c(s.conversation, "pa w-200")}>
+              {showScene && <TextFlow text={textObj.answer} onFinish={onTextFinish} showSkip={textObj.key !== 4} />}
+              {showQuestions && (
+                <div className="fbv mt-40 gap-10">
+                  {currentQuestions.map((que) => (
+                    <div key={que.key} className={c(s.questions, "text-[12px] hand")} onClick={() => handleClickQuestionItem(que)}>
+                      {que.label}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </>
   );
