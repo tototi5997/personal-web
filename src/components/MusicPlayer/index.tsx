@@ -47,7 +47,7 @@ const MusicPlayer = forwardRef<MusicPlayerRef, IMusicPlayer>(({ className }, ref
           }}
         />
       )}
-      <audio src="/src/music/shiguang.mp3" ref={playerRef} loop />
+      <audio src="/music/shiguang.mp3" ref={playerRef} loop />
     </div>
   );
 });
