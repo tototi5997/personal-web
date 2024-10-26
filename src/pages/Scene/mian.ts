@@ -92,7 +92,7 @@ export class MainScene {
     this.scene.rotation.y -= 0.001;
 
     if (this.targetCameraPosition) {
-      this.camera.position.lerp(this.targetCameraPosition, 0.05);
+      this.camera.position.lerp(this.targetCameraPosition, 0.01);
       this.controls.update();
 
       if (this.camera.position.distanceTo(this.targetCameraPosition) < 0.1) {
